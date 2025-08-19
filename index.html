@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Pro - Professional PDF Editor & Reader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --danger: #e63946;
+            --warning: #fca311;
+            --gray: #8d99ae;
+            --border: #dee2e6;
+            --premium: #ff6b00;
+            --card-bg: #ffffff;
+            --sidebar-bg: #f5f7ff;
+            --toolbar-bg: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            position: sticky;
+            top: 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.6rem;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 10px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .premium-badge {
+            background: var(--premium);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(255, 107, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .premium-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 0, 0.4);
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 20px 5%;
+            gap: 25px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            padding: 25px 0;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            height: fit-content;
+        }
+        
+        .tools-section, .file-section {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 20px;
+            padding: 0 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .tool-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        
+        .tool-btn:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+            color: var(--primary);
+        }
+        
+        .tool-btn.active {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
+        }
+        
+        .tool-btn i {
+            font-size: 1.2rem;
+            width: 26px;
+            text-align: center;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .file-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .file-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .file-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        
+        .file-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+        }
+        
+        .file-item.active {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .file-item i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .file-upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 10px 20px 0;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .file-upload-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .toolbar {
+            background-color: var(--toolbar-bg);
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+            z-index: 5;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar-btn {
+            background: white;
+            border: 1px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dark);
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+        
+        .toolbar-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-color: rgba(67, 97, 238, 0.2);
+        }
+        
+        .toolbar-divider {
+            width: 1px;
+            height: 30px;
+            background-color: var(--border);
+            margin: 0 8px;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .view-container {
+            flex: 1;
+            overflow: auto;
+            padding: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            background: #f9faff;
+        }
+        
+        .pdf-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            overflow: auto;
+            max-width: 100%;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .pdf-canvas {
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .pdf-page-controls {
+            position: sticky;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+            z-index: 20;
+        }
+        
+        .page-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        .page-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .page-btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .page-info {
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+            color: var(--dark);
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+            background: white;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .zoom-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        /* Annotation Styles */
+        .annotation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .text-annotation {
+            position: absolute;
+            background-color: rgba(255, 255, 0, 0.3);
+            border: 1px dashed #ff9900;
+            pointer-events: auto;
+            cursor: move;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .draw-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.15);
+        }
+        
+        .color-option.active {
+            border-color: var(--dark);
+            transform: scale(1.2);
+        }
+        
+        /* Empty State */
+        .no-file {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .no-file i {
+            font-size: 6rem;
+            margin-bottom: 25px;
+            color: #d1d5db;
+        }
+        
+        .no-file h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-weight: 700;
+        }
+        
+        .no-file p {
+            margin-bottom: 30px;
+            max-width: 600px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        /* Loading State */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: 12px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(67, 97, 238, 0.2);
+            border-top: 6px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Features Section */
+        .features-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            flex: 1;
+            min-width: 250px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            background: rgba(67, 97, 238, 0.1);
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        .feature-icon i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .feature-card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        /* Pricing Section */
+        .pricing-section {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+            padding: 80px 5%;
+            margin-top: 60px;
+        }
+        
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card.popular {
+            transform: scale(1.05);
+            border: 2px solid var(--primary);
+            z-index: 1;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: var(--premium);
+            color: white;
+            padding: 8px 40px;
+            transform: rotate(45deg);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+        
+        .price span {
+            font-size: 1.2rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .features-list {
+            list-style: none;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+        
+        .features-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .features-list li i {
+            color: var(--primary);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 5%;
+            margin-top: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-column ul li a {
+            color: #b4b9c9;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8d99ae;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                justify-content: center;
+            }
+            
+            .features-section, .pricing-cards {
+                flex-direction: column;
+            }
+            
+            .logo span {
+                font-size: 1.3rem;
+            }
+            
+            .header-actions {
+                gap: 10px;
+            }
+            
+            .premium-badge span {
+                display: none;
+            }
+            
+            .premium-badge {
+                padding: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .pdf-page-controls {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+            
+            .page-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            
+            .page-info {
+                min-width: 90px;
+                font-size: 0.9rem;
+            }
+            
+            .zoom-controls {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .zoom-btn {
+                width: 36px;
+                height: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-file-pdf"></i>
+            <span>PDF Pro</span>
+        </div>
+        <div class="header-actions">
+            <div class="premium-badge" id="premium-btn">
+                <i class="fas fa-crown"></i>
+                <span>Go Premium</span>
+            </div>
+            <button class="btn-primary" id="save-pdf-btn">
+                <i class="fas fa-save"></i>
+                Save PDF
+            </button>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="tools-section">
+                <div class="section-title">Editing Tools</div>
+                <div class="tool-btn active" data-tool="select">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span>Select Tool</span>
+                </div>
+                <div class="tool-btn" data-tool="text">
+                    <i class="fas fa-font"></i>
+                    <span>Add Text</span>
+                </div>
+                <div class="tool-btn" data-tool="draw">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span>Draw & Annotate</span>
+                </div>
+                <div class="tool-btn" data-tool="highlight">
+                    <i class="fas fa-highlighter"></i>
+                    <span>Highlight Text</span>
+                </div>
+                <div class="tool-btn" data-tool="shape">
+                    <i class="fas fa-shapes"></i>
+                    <span>Add Shapes</span>
+                </div>
+            </div>
+            
+            <div class="file-section">
+                <div class="section-title">Recent Files</div>
+                <div class="file-list">
+                    <div class="file-item active">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Annual Report.pdf</span>
+                    </div>
+                    <div class="file-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Contract Agreement.pdf</span>
+                    </div>
+                    <div class="file-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Research Paper.pdf</span>
+                    </div>
+                    <div class="file-item">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Financial Statement.pdf</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="file-upload-btn" id="upload-btn">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Upload PDF Document</span>
+            </button>
+            <input type="file" id="file-input" class="file-input" accept=".pdf">
+        </div>
+        
+        <div class="content-area">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="zoom-in" title="Zoom In">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="toolbar-btn" id="zoom-out" title="Zoom Out">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="toolbar-btn" id="zoom-fit" title="Fit to Page">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-divider"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="rotate-left" title="Rotate Left">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="toolbar-btn" id="rotate-right" title="Rotate Right">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-divider"></div>
+                
+                <div class="color-picker">
+                    <div class="color-option active" style="background-color: #e63946;" data-color="#e63946"></div>
+                    <div class="color-option" style="background-color: #4361ee;" data-color="#4361ee"></div>
+                    <div class="color-option" style="background-color: #2a9d8f;" data-color="#2a9d8f"></div>
+                    <div class="color-option" style="background-color: #f4a261;" data-color="#f4a261"></div>
+                    <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                </div>
+            </div>
+            
+            <div class="view-container">
+                <div class="no-file">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>Your PDF Workspace is Ready</h3>
+                    <p>Upload a PDF document to start reading, editing and annotating. Add text, drawings, highlights, and shapes to your documents. All changes can be saved for later use.</p>
+                    <button class="btn-primary" id="upload-main-btn">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Upload PDF Document
+                    </button>
+                </div>
+                
+                <div class="pdf-container" id="pdf-container" style="display: none;">
+                    <canvas class="pdf-canvas" id="pdf-canvas"></canvas>
+                    <div class="annotation-layer" id="annotation-layer"></div>
+                    <canvas class="draw-canvas" id="draw-canvas"></canvas>
+                </div>
+                
+                <div class="pdf-page-controls" id="page-controls" style="display: none;">
+                    <button class="page-btn" id="prev-page" title="Previous Page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="page-info" id="page-info">Page 1 of 1</div>
+                    <button class="page-btn" id="next-page" title="Next Page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-up" title="Zoom In">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="zoom-btn" id="zoom-down" title="Zoom Out">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="zoom-btn" id="zoom-reset" title="Reset Zoom">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div style="padding: 0 5%;">
+        <h2 style="text-align: center; margin: 60px 0 30px; font-size: 2.2rem; color: var(--dark);">Powerful PDF Tools at Your Fingertips</h2>
+        <div class="features-section">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h4>Edit PDF Documents</h4>
+                <p>Modify text, images, and pages in your PDF files. Add annotations, comments, and highlights to collaborate with your team.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <h4>Sign Documents</h4>
+                <p>Add electronic signatures to your PDFs for contracts and agreements. Secure and legally binding.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h4>Password Protection</h4>
+                <p>Secure your sensitive documents with password encryption and permission controls.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-sync"></i>
+                </div>
+                <h4>Convert Formats</h4>
+                <p>Convert PDFs to Word, Excel, PowerPoint, and image formats with perfect formatting preserved.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pricing Section -->
+    <div class="pricing-section">
+        <div class="pricing-container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that's right for you. All plans include our core features with premium options for professionals and businesses.</p>
+            </div>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Free</h3>
+                    <div class="price">$0 <span>/forever</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> Basic PDF editing tools</li>
+                        <li><i class="fas fa-check-circle"></i> 5 documents per month</li>
+                        <li><i class="fas fa-check-circle"></i> 10MB file size limit</li>
+                        <li><i class="fas fa-times-circle"></i> Watermark on exports</li>
+                        <li><i class="fas fa-times-circle"></i> No priority support</li>
+                    </ul>
+                    <button class="btn-primary" style="background-color: var(--gray);">Current Plan</button>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Most Popular</div>
+                    <h3>Pro</h3>
+                    <div class="price">$9.99 <span>/month</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> All PDF editing tools</li>
+                        <li><i class="fas fa-check-circle"></i> Unlimited documents</li>
+                        <li><i class="fas fa-check-circle"></i> 100MB file size limit</li>
+                        <li><i class="fas fa-check-circle"></i> No watermark</li>
+                        <li><i class="fas fa-check-circle"></i> Priority email support</li>
+                    </ul>
+                    <button class="btn-primary" style="background-color: var(--premium);">Upgrade Now</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Business</h3>
+                    <div class="price">$29.99 <span>/month</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check-circle"></i> All Pro features</li>
+                        <li><i class="fas fa-check-circle"></i> Team collaboration</li>
+                        <li><i class="fas fa-check-circle"></i> 1GB file size limit</li>
+                        <li><i class="fas fa-check-circle"></i> Advanced security</li>
+                        <li><i class="fas fa-check-circle"></i> 24/7 priority support</li>
+                    </ul>
+                    <button class="btn-primary">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-column">
+            <h3>PDF Pro</h3>
+            <p style="color: #b4b9c9; line-height: 1.6; max-width: 300px;">Professional PDF tools for individuals and businesses. Edit, convert, and manage your PDF documents with ease.</p>
+        </div>
+        <div class="footer-column">
+            <h3>Features</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> PDF Editor</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> PDF Converter</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> PDF Signer</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> PDF Compressor</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Resources</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Help Center</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Tutorials</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Blog</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Community</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Company</h3>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Careers</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Partners</a></li>
+            </ul>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 PDF Pro. All rights reserved. Designed for your document success.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let pdfDoc = null;
+        let currentPage = 1;
+        let currentScale = 1.5;
+        let currentRotation = 0;
+        let currentTool = 'select';
+        let currentColor = '#e63946';
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let annotations = [];
+        let activeAnnotation = null;
+        
+        // DOM elements
+        const pdfContainer = document.getElementById('pdf-container');
+        const pdfCanvas = document.getElementById('pdf-canvas');
+        const annotationLayer = document.getElementById('annotation-layer');
+        const drawCanvas = document.getElementById('draw-canvas');
+        const ctx = drawCanvas.getContext('2d');
+        const pageControls = document.getElementById('page-controls');
+        const pageInfo = document.getElementById('page-info');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadMainBtn = document.getElementById('upload-main-btn');
+        const savePdfBtn = document.getElementById('save-pdf-btn');
+        const noFileSection = document.querySelector('.no-file');
+        const premiumBtn = document.getElementById('premium-btn');
+        
+        // Initialize PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        
+        // Event listeners
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                
+                // Update UI based on tool
+                document.body.classList.toggle('drawing-mode', currentTool === 'draw');
+            });
+        });
+        
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                currentColor = option.dataset.color;
+            });
+        });
+        
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        uploadMainBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        prevPageBtn.addEventListener('click', () => changePage(currentPage - 1));
+        nextPageBtn.addEventListener('click', () => changePage(currentPage + 1));
+        
+        document.getElementById('zoom-in').addEventListener('click', () => changeZoom(0.1));
+        document.getElementById('zoom-out').addEventListener('click', () => changeZoom(-0.1));
+        document.getElementById('zoom-fit').addEventListener('click', fitToPage);
+        document.getElementById('zoom-up').addEventListener('click', () => changeZoom(0.1));
+        document.getElementById('zoom-down').addEventListener('click', () => changeZoom(-0.1));
+        document.getElementById('zoom-reset').addEventListener('click', resetZoom);
+        
+        document.getElementById('rotate-left').addEventListener('click', () => rotatePage(-90));
+        document.getElementById('rotate-right').addEventListener('click', () => rotatePage(90));
+        
+        savePdfBtn.addEventListener('click', savePdf);
+        premiumBtn.addEventListener('click', () => {
+            document.querySelector('.pricing-section').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Drawing events
+        drawCanvas.addEventListener('mousedown', startDrawing);
+        drawCanvas.addEventListener('mousemove', draw);
+        drawCanvas.addEventListener('mouseup', stopDrawing);
+        drawCanvas.addEventListener('mouseout', stopDrawing);
+        
+        // Handle file upload
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                alert('Please select a valid PDF file.');
+                return;
+            }
+            
+            // Show loading state
+            showLoading(true);
+            
+            const fileReader = new FileReader();
+            fileReader.onload = function() {
+                const typedarray = new Uint8Array(this.result);
+                
+                // Load PDF document
+                pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+                    pdfDoc = pdf;
+                    currentPage = 1;
+                    currentScale = 1.5;
+                    currentRotation = 0;
+                    
+                    // Show PDF viewer
+                    noFileSection.style.display = 'none';
+                    pdfContainer.style.display = 'block';
+                    pageControls.style.display = 'flex';
+                    
+                    // Render first page
+                    renderPage(currentPage);
+                    
+                    // Add to recent files
+                    addToRecentFiles(file.name);
+                }).catch(error => {
+                    console.error('Error loading PDF:', error);
+                    alert('Failed to load PDF file.');
+                    showLoading(false);
+                });
+            };
+            
+            fileReader.readAsArrayBuffer(file);
+        }
+        
+        // Add to recent files
+        function addToRecentFiles(fileName) {
+            const fileList = document.querySelector('.file-list');
+            const newFile = document.createElement('div');
+            newFile.className = 'file-item';
+            newFile.innerHTML = `
+                <i class="fas fa-file-pdf"></i>
+                <span>${fileName}</span>
+            `;
+            
+            // Add click event to load this file
+            newFile.addEventListener('click', function() {
+                document.querySelectorAll('.file-item').forEach(item => item.classList.remove('active'));
+                this.classList.add('active');
+                // In a real app, you would load this file
+            });
+            
+            fileList.insertBefore(newFile, fileList.firstChild);
+            
+            // Limit to 5 recent files
+            if (fileList.children.length > 5) {
+                fileList.removeChild(fileList.lastChild);
+            }
+        }
+        
+        // Render PDF page
+        function renderPage(pageNum) {
+            if (!pdfDoc) return;
+            
+            showLoading(true);
+            
+            // Clear previous content
+            annotationLayer.innerHTML = '';
+            ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            
+            // Get page
+            pdfDoc.getPage(pageNum).then(page => {
+                // Set viewport
+                const viewport = page.getViewport({ 
+                    scale: currentScale, 
+                    rotation: currentRotation 
+                });
+                
+                // Set canvas dimensions
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width = viewport.width;
+                drawCanvas.height = viewport.height;
+                drawCanvas.width = viewport.width;
+                
+                // Render PDF page
+                const renderContext = {
+                    canvasContext: pdfCanvas.getContext('2d'),
+                    viewport: viewport
+                };
+                
+                page.render(renderContext).promise.then(() => {
+                    // Update page info
+                    pageInfo.textContent = `Page ${pageNum} of ${pdfDoc.numPages}`;
+                    
+                    // Enable/disable page buttons
+                    prevPageBtn.disabled = pageNum <= 1;
+                    nextPageBtn.disabled = pageNum >= pdfDoc.numPages;
+                    
+                    // Render annotations for this page
+                    renderAnnotations();
+                    
+                    showLoading(false);
+                });
+            });
+        }
+        
+        // Change page
+        function changePage(pageNum) {
+            if (pageNum < 1 || pageNum > pdfDoc.numPages) return;
+            currentPage = pageNum;
+            renderPage(currentPage);
+        }
+        
+        // Change zoom level
+        function changeZoom(delta) {
+            currentScale += delta;
+            currentScale = Math.max(0.5, Math.min(3, currentScale));
+            renderPage(currentPage);
+        }
+        
+        // Reset zoom to default
+        function resetZoom() {
+            currentScale = 1.5;
+            renderPage(currentPage);
+        }
+        
+        // Fit page to container
+        function fitToPage() {
+            // Simplified fitting logic
+            const containerWidth = pdfContainer.clientWidth - 40;
+            pdfDoc.getPage(currentPage).then(page => {
+                const viewport = page.getViewport({ scale: 1 });
+                currentScale = containerWidth / viewport.width;
+                renderPage(currentPage);
+            });
+        }
+        
+        // Rotate page
+        function rotatePage(degrees) {
+            currentRotation = (currentRotation + degrees) % 360;
+            renderPage(currentPage);
+        }
+        
+        // Drawing functions
+        function startDrawing(e) {
+            if (currentTool !== 'draw') return;
+            
+            isDrawing = true;
+            const rect = drawCanvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = drawCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            lastX = currentX;
+            lastY = currentY;
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        
+        // Annotation functions
+        function renderAnnotations() {
+            // Clear previous annotations
+            annotationLayer.innerHTML = '';
+            
+            // Add sample annotations for demo
+            if (currentPage === 1) {
+                addTextAnnotation(100, 150, 'Important note here', currentColor);
+                addTextAnnotation(300, 250, 'Review this section', '#2a9d8f');
+            }
+        }
+        
+        function addTextAnnotation(x, y, text, color) {
+            const annotation = document.createElement('div');
+            annotation.className = 'text-annotation';
+            annotation.style.left = `${x}px`;
+            annotation.style.top = `${y}px`;
+            annotation.style.backgroundColor = color + '33';
+            annotation.style.borderColor = color;
+            annotation.textContent = text;
+            
+            annotationLayer.appendChild(annotation);
+            
+            // Make draggable
+            makeDraggable(annotation);
+        }
+        
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            element.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                if (currentTool !== 'select') return;
+                
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+            
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        
+        // Save PDF function
+        function savePdf() {
+            if (!pdfDoc) {
+                alert('Please upload a PDF document first');
+                return;
+            }
+            
+            // Create a fake "save as" action for demo
+            const fileName = prompt('Enter a name for your PDF file:', 'edited-document');
+            if (fileName) {
+                // Simulate saving process
+                showLoading(true);
+                
+                setTimeout(() => {
+                    showLoading(false);
+                    alert(`Your PDF "${fileName}.pdf" has been saved successfully!\n\nIn a production environment, this would save your edited PDF with all annotations.`);
+                }, 1500);
+            }
+        }
+        
+        // Show/hide loading indicator
+        function showLoading(show) {
+            const existingLoading = document.querySelector('.loading');
+            
+            if (show) {
+                if (!existingLoading) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'loading';
+                    loadingDiv.innerHTML = '<div class="spinner"></div>';
+                    pdfContainer.appendChild(loadingDiv);
+                }
+            } else if (existingLoading) {
+                existingLoading.remove();
+            }
+        }
+        
+        // Initialize with a sample annotation
+        window.onload = () => {
+            // Add initial text annotation for demo purposes
+            setTimeout(() => {
+                if (noFileSection.style.display !== 'none') {
+                    addTextAnnotation(50, 50, 'Try uploading a PDF file to start editing!', '#4361ee');
+                }
+            }, 500);
+        };
+    </script>
+</body>
+</html>
